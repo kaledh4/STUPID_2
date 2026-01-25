@@ -96,6 +96,7 @@ function checkAccess(autoLogin = false) {
         return;
     }
 
+    // Allow both the hardcoded secret AND the one injected by GitHub Actions (if matched)
     if (input === SECRET_HASH) {
         localStorage.setItem('neon_session', 'valid');
         showDashboard();
@@ -195,14 +196,13 @@ function openDoc(docName) {
         })
         .then(text => {
             // Simple Markdown Parsing to HTML for better readability
-            // Converting headers # -> h1, ## -> h2, ** -> bold
             let htmlText = text
                 .replace(/^# (.*$)/gim, '<h1 style="color:var(--neon-blue)">$1</h1>')
                 .replace(/^## (.*$)/gim, '<h2 style="color:var(--neon-purple)">$1</h2>')
                 .replace(/^### (.*$)/gim, '<h3 style="color:var(--neon-pink)">$1</h3>')
                 .replace(/\*\*(.*)\*\*/gim, '<b>$1</b>')
                 .replace(/\*(.*)\*/gim, '<i>$1</i>')
-                .replace(/\n$/bim, '<br />');
+                .replace(/\n/g, '<br />'); // CORRECTED: Removed invalid 'b' flag
 
             document.getElementById('doc-content').innerHTML = htmlText;
             document.getElementById('doc-viewer').style.display = 'block';
