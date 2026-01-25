@@ -1,0 +1,30 @@
+name: Deploy Dashboard
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      # This step injects the password from GitHub Secrets into the JS file
+      - name: Inject Password
+        env:
+          MY_SECRET: ${{ secrets.DASHBOARD_PASSWORD }}
+        run: |
+          # If secret is set, replace the placeholder text in app.js
+          if [[ -n "$MY_SECRET" ]]; then
+            sed -i "s/NEON2026/$MY_SECRET/g" docs/js/app.js
+          fi
+
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./docs

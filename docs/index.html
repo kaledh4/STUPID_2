@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NEON SPLASH | Dev Access</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body>
+
+    <!-- LOGIN SCREEN -->
+    <div id="login-screen" class="login-container">
+        <h1 class="neon-text">NEON SPLASH</h1>
+        <div class="login-box">
+            <p data-i18n="restricted">RESTRICTED ACCESS</p>
+            <input type="password" id="password-input" placeholder="ENTER ACCESS CODE">
+            <button class="enter-btn" onclick="checkAccess()" data-i18n="unlock">UNLOCK</button>
+            <p id="error-msg" style="color: #ff0055; display: none; margin-top: 10px;" data-i18n="denied">DENIED</p>
+        </div>
+    </div>
+
+    <!-- DASHBOARD SCREEN -->
+    <div id="dashboard" class="dashboard-container">
+        <header class="nav-header">
+            <h2 style="color: var(--neon-pink);">NEON SPLASH // DEV HUB</h2>
+            <div style="display: flex; gap: 15px;">
+                <button class="action-btn lang-toggle" onclick="toggleLanguage()">🌐 EN/AR</button>
+                <button class="action-btn" onclick="lockSession()" data-i18n="logout">LOGOUT</button>
+            </div>
+        </header>
+
+        <div class="grid-layout">
+
+            <!-- LEFT COLUMN: DOCS & FILES -->
+            <div class="main-content">
+
+                <div class="card">
+                    <h2 data-i18n="docs_title">STRATEGIC DOCUMENTS</h2>
+                    <p style="opacity: 0.7; margin-bottom: 20px;" data-i18n="docs_subtitle">Master documentation for the
+                        project. Edit directly on GitHub.</p>
+
+                    <!-- Doc Item: MARKET -->
+                    <div class="doc-link">
+                        <div class="doc-info">
+                            <strong>MARKET.md</strong>
+                            <br><small data-i18n="market_desc">Analysis & Vibe Strategy</small>
+                        </div>
+                        <div class="btn-group">
+                            <a href="#" onclick="openDoc('market')" class="action-btn view" data-i18n="read">READ</a>
+                            <a href="https://github.com/USERNAME/REPO_NAME/edit/main/market.md" target="_blank"
+                                class="action-btn edit" data-i18n="edit">EDIT</a>
+                        </div>
+                    </div>
+
+                    <!-- Doc Item: BLUEPRINT -->
+                    <div class="doc-link">
+                        <div class="doc-info">
+                            <strong>BLUEPRINT.md</strong>
+                            <br><small data-i18n="blueprint_desc">Game Design Document (GDD)</small>
+                        </div>
+                        <div class="btn-group">
+                            <a href="#" onclick="openDoc('blueprint')" class="action-btn view" data-i18n="read">READ</a>
+                            <a href="https://github.com/USERNAME/REPO_NAME/edit/main/blueprint.md" target="_blank"
+                                class="action-btn edit" data-i18n="edit">EDIT</a>
+                        </div>
+                    </div>
+
+                    <!-- Doc Item: STUDY -->
+                    <div class="doc-link">
+                        <div class="doc-info">
+                            <strong>STUDY.md</strong>
+                            <br><small data-i18n="study_desc">8-Week Dev Roadmap</small>
+                        </div>
+                        <div class="btn-group">
+                            <a href="#" onclick="openDoc('study')" class="action-btn view" data-i18n="read">READ</a>
+                            <a href="https://github.com/USERNAME/REPO_NAME/edit/main/study.md" target="_blank"
+                                class="action-btn edit" data-i18n="edit">EDIT</a>
+                        </div>
+                    </div>
+
+                    <!-- Doc Item: PROJECT -->
+                    <div class="doc-link">
+                        <div class="doc-info">
+                            <strong>PROJECT.md</strong>
+                            <br><small data-i18n="project_desc">Case Studies & Proof</small>
+                        </div>
+                        <div class="btn-group">
+                            <a href="#" onclick="openDoc('project')" class="action-btn view" data-i18n="read">READ</a>
+                            <a href="https://github.com/USERNAME/REPO_NAME/edit/main/project.md" target="_blank"
+                                class="action-btn edit" data-i18n="edit">EDIT</a>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h2 data-i18n="upload_title">FILE UPLOAD & ASSETS</h2>
+                    <div class="drop-zone"
+                        onclick="window.open('https://github.com/USERNAME/REPO_NAME/upload/main', '_blank')">
+                        <h3 data-i18n="drag_drop">DRAG & DROP FILES HERE</h3>
+                        <p data-i18n="github_redirect">(Redirects to GitHub Upload Interface)</p>
+                        <p style="font-size: 0.8rem; color: var(--neon-purple);" data-i18n="supported_files">Supported:
+                            Images, Videos, Unity Packages</p>
+                    </div>
+
+                    <div id="media-gallery"
+                        style="margin-top: 20px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px;">
+                        <div
+                            style="background: rgba(0,0,0,0.5); height: 100px; border-radius: 5px; display: flex; align-items: center; justify-content: center; border: 1px dashed #555;">
+                            IMG 1</div>
+                        <div
+                            style="background: rgba(0,0,0,0.5); height: 100px; border-radius: 5px; display: flex; align-items: center; justify-content: center; border: 1px dashed #555;">
+                            IMG 2</div>
+                        <div
+                            style="background: rgba(0,0,0,0.5); height: 100px; border-radius: 5px; display: flex; align-items: center; justify-content: center; border: 1px dashed #555;">
+                            IMG 3</div>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- RIGHT COLUMN: CHECKLIST -->
+            <div class="side-content">
+                <div class="card">
+                    <h2 data-i18n="checklist_title">DEV CHECKLIST</h2>
+                    <div id="checklist-container">
+                        <!-- Checklist items injected via JS -->
+                    </div>
+                    <div style="margin-top: 15px; display: flex; gap: 5px;">
+                        <input type="text" id="new-task" placeholder="Add new task..."
+                            style="background: rgba(255,255,255,0.1); border: none; color: white; border-radius: 4px; padding: 5px;">
+                        <button onclick="addTask()" class="action-btn" style="background: var(--neon-blue);">+</button>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h2 data-i18n="quick_links">QUICK LINKS</h2>
+                    <ul style="list-style: none; padding: 0;">
+                        <li style="margin-bottom: 10px;"><a href="https://github.com/USERNAME/REPO_NAME" target="_blank"
+                                style="color: var(--neon-blue); text-decoration: none;">📂 GitHub Repo</a></li>
+                        <li style="margin-bottom: 10px;"><a href="https://assetstore.unity.com/" target="_blank"
+                                style="color: var(--neon-blue); text-decoration: none;">🛒 Asset Store</a></li>
+                        <li style="margin-bottom: 10px;"><a href="https://mirror-networking.com/" target="_blank"
+                                style="color: var(--neon-blue); text-decoration: none;">🌐 Mirror Docs</a></li>
+                    </ul>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- Simple MD Viewer Modal -->
+    <div id="doc-viewer"
+        style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 1000; padding: 50px; box-sizing: border-box;">
+        <button onclick="document.getElementById('doc-viewer').style.display='none'"
+            style="position: absolute; top: 20px; right: 20px; font-size: 2rem; background: none; border: none; color: white; cursor: pointer;">&times;</button>
+        <div
+            style="background: #1a1a1a; width: 100%; height: 100%; overflow: auto; padding: 2rem; border-radius: 10px; border: 1px solid var(--neon-blue);">
+            <pre id="doc-content" style="color: #ddd; white-space: pre-wrap; font-family: monospace;"></pre>
+        </div>
+    </div>
+
+    <script src="js/app.js"></script>
+</body>
+
+</html>
