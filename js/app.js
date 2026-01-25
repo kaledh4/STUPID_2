@@ -1,5 +1,8 @@
 // SECURITY NOTE: Client-side only. Not bulletproof.
-const SECRET_HASH = "NEON2026";
+const SECRET_HASH = "4661";
+const REPO_USER = "kaledh4";
+const REPO_NAME = "STUPID_2";
+const BRANCH = "main";
 
 // --- LOCALIZATION DATA ---
 const translations = {
@@ -176,20 +179,32 @@ function addTask() {
 // --- FILE VIEWER LOGIC ---
 
 function openDoc(docName) {
-    // Determine path based on language
-    let path = `../${docName}.md`; // Default English
+    let path = `/${docName}.md`;
 
     if (currentLang === 'ar') {
-        path = `../Arabic/${docName}.md`; // Arabic Folder
+        path = `/Arabic/${docName}.md`;
     }
 
-    fetch(path)
+    // Use Raw GitHub User Content to bypass relative path issues on deployed site
+    const rawUrl = `https://raw.githubusercontent.com/${REPO_USER}/${REPO_NAME}/${BRANCH}${path}`;
+
+    fetch(rawUrl)
         .then(response => {
-            if (!response.ok) throw new Error("File not found or local browser restriction.");
+            if (!response.ok) throw new Error("Could not fetch file from GitHub.");
             return response.text();
         })
         .then(text => {
-            document.getElementById('doc-content').textContent = text;
+            // Simple Markdown Parsing to HTML for better readability
+            // Converting headers # -> h1, ## -> h2, ** -> bold
+            let htmlText = text
+                .replace(/^# (.*$)/gim, '<h1 style="color:var(--neon-blue)">$1</h1>')
+                .replace(/^## (.*$)/gim, '<h2 style="color:var(--neon-purple)">$1</h2>')
+                .replace(/^### (.*$)/gim, '<h3 style="color:var(--neon-pink)">$1</h3>')
+                .replace(/\*\*(.*)\*\*/gim, '<b>$1</b>')
+                .replace(/\*(.*)\*/gim, '<i>$1</i>')
+                .replace(/\n$/bim, '<br />');
+
+            document.getElementById('doc-content').innerHTML = htmlText;
             document.getElementById('doc-viewer').style.display = 'block';
 
             // Adjust viewer direction
@@ -202,9 +217,13 @@ function openDoc(docName) {
             }
         })
         .catch(err => {
-            const msg = currentLang === 'ar'
-                ? "لا يمكن تحميل الملف محلياً.\nالمتصفحات تمنع الوصول للملفات المحلية.\nاضغط 'تعديل' للمشاهدة على GitHub."
-                : "Cannot load file directly.\nIf running locally, browsers block file access.\nClick 'EDIT' to view on GitHub.";
-            alert(msg);
+            document.getElementById('doc-content').innerHTML = `
+                <h2 style="color: red">ERROR LOADING DOCUMENT</h2>
+                <p>Could not fetch from: ${rawUrl}</p>
+                <p>Ensure the repository is PUBLIC or the path is correct.</p>
+                <br>
+                <button class="action-btn" onclick="window.open('${rawUrl.replace('raw.githubusercontent.com', 'github.com').replace('/main/', '/blob/main/')}')">OPEN ON GITHUB</button>
+            `;
+            document.getElementById('doc-viewer').style.display = 'block';
         });
 }
