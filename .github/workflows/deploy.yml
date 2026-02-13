@@ -24,12 +24,10 @@ jobs:
         run: npm ci
 
       - name: Validate HTML
-        run: npx html-validator --files="docs/**/*.html"
+        run: npm run validate-html
 
       - name: Check Links
-        run: |
-          npm install -g linkinator
-          linkinator docs --recurse --skip "github.com,raw.githubusercontent.com"
+        run: npm run check-links
 
   deploy:
     needs: test
