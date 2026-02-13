@@ -26,9 +26,9 @@
     "eslint": "^8.0.0",
     "w3c-html-validator": "^2.2.0",
     "linkinator": "^7.5.3",
-    "live-server": "^1.2.0",
     "prettier": "^2.0.0",
-    "serve": "^14.0.0"
+    "serve": "^14.0.0",
+    "live-server": "^1.2.0"
   },
   "repository": {
     "type": "git",
@@ -37,8 +37,5 @@
   "bugs": {
     "url": "https://github.com/kaledh4/STUPID_2/issues"
   },
-  "homepage": "https://github.com/kaledh4/STUPID_2#readme",
-  "dependencies": {
-    "w3c-html-validator": "^2.2.0"
-  }
+  "homepage": "https://github.com/kaledh4/STUPID_2#readme"
 }
