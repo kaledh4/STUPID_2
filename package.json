@@ -1,0 +1,37 @@
+{
+  "name": "neon-splash-docs",
+  "version": "1.0.0",
+  "description": "Documentation hub for the Neon Splash game project",
+  "main": "docs/index.html",
+  "scripts": {
+    "start": "npx serve docs",
+    "dev": "npx live-server docs --port=8080",
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "echo \"Build completed\"",
+    "lint": "eslint docs/js/*.js",
+    "format": "prettier --write docs/**/*.{html,css,js}"
+  },
+  "keywords": [
+    "gamedev",
+    "documentation",
+    "neon-splash",
+    "vaporwave",
+    "shooter"
+  ],
+  "author": "Neon Splash Team",
+  "license": "MIT",
+  "devDependencies": {
+    "eslint": "^8.0.0",
+    "prettier": "^2.0.0",
+    "serve": "^14.0.0",
+    "live-server": "^1.2.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/kaledh4/STUPID_2.git"
+  },
+  "bugs": {
+    "url": "https://github.com/kaledh4/STUPID_2/issues"
+  },
+  "homepage": "https://github.com/kaledh4/STUPID_2#readme"
+}

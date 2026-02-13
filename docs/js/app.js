@@ -24,7 +24,12 @@ const translations = {
         github_redirect: "(Redirects to GitHub Upload Interface)",
         supported_files: "Supported: Images, Videos, Unity Packages",
         checklist_title: "DEV CHECKLIST",
-        quick_links: "QUICK LINKS"
+        quick_links: "QUICK LINKS",
+        document_viewer: "Document Viewer",
+        add_task_placeholder: "Add new task...",
+        password_placeholder: "ENTER ACCESS CODE",
+        arabic_version: "Arabic Version",
+        english_version: "English Version"
     },
     ar: {
         restricted: "دخول مقيد",
@@ -44,7 +49,12 @@ const translations = {
         github_redirect: "(يعيد التوجيه إلى واجهة رفع GitHub)",
         supported_files: "مدعوم: صور، فيديو، حزم Unity",
         checklist_title: "قائمة مهام التطوير",
-        quick_links: "روابط سريعة"
+        quick_links: "روابط سريعة",
+        document_viewer: "عارض المستندات",
+        add_task_placeholder: "أضف مهمة جديدة...",
+        password_placeholder: "أدخل رمز الوصول",
+        arabic_version: "النسخة العربية",
+        english_version: "النسخة الإنجليزية"
     }
 };
 
@@ -68,13 +78,39 @@ function applyLanguage() {
     if (currentLang === 'ar') {
         document.body.classList.add('rtl');
         document.documentElement.lang = 'ar';
-        document.getElementById('password-input').placeholder = "أدخل رمز الوصول";
-        document.getElementById('new-task').placeholder = "أضف مهمة جديدة...";
+        document.getElementById('password-input').placeholder = translations.ar.password_placeholder;
+        document.getElementById('new-task').placeholder = translations.ar.add_task_placeholder;
+        
+        // Update modal title if it exists
+        const modalTitle = document.querySelector('.modal-header h2');
+        if (modalTitle) {
+            modalTitle.textContent = translations.ar.document_viewer;
+        }
+        
+        // Update language toggle button text
+        const langToggleBtn = document.querySelector('.lang-toggle');
+        if (langToggleBtn) {
+            langToggleBtn.textContent = '🌐 EN';
+            langToggleBtn.title = translations.ar.english_version;
+        }
     } else {
         document.body.classList.remove('rtl');
         document.documentElement.lang = 'en';
-        document.getElementById('password-input').placeholder = "ENTER ACCESS CODE";
-        document.getElementById('new-task').placeholder = "Add new task...";
+        document.getElementById('password-input').placeholder = translations.en.password_placeholder;
+        document.getElementById('new-task').placeholder = translations.en.add_task_placeholder;
+        
+        // Update modal title if it exists
+        const modalTitle = document.querySelector('.modal-header h2');
+        if (modalTitle) {
+            modalTitle.textContent = translations.en.document_viewer;
+        }
+        
+        // Update language toggle button text
+        const langToggleBtn = document.querySelector('.lang-toggle');
+        if (langToggleBtn) {
+            langToggleBtn.textContent = '🌐 AR';
+            langToggleBtn.title = translations.en.arabic_version;
+        }
     }
 
     // 3. Save preference
@@ -103,6 +139,8 @@ function checkAccess(autoLogin = false) {
     } else {
         if (!autoLogin) {
             errorMsg.style.display = 'block';
+            // Add animation class for error message
+            errorMsg.classList.add('error-message');
         }
     }
 }
@@ -151,10 +189,18 @@ function loadChecklist() {
         div.className = `checklist-item ${task.done ? 'done' : ''}`;
         div.onclick = () => toggleTask(index);
 
-        div.innerHTML = `
-            <input type="checkbox" ${task.done ? 'checked' : ''}>
-            <span>${task.text}</span>
-        `;
+        // Create checkbox element
+        const checkbox = document.createElement('input');
+        checkbox.type = 'checkbox';
+        checkbox.checked = task.done;
+        checkbox.onchange = () => toggleTask(index);
+
+        // Create text span
+        const textSpan = document.createElement('span');
+        textSpan.textContent = task.text;
+
+        div.appendChild(checkbox);
+        div.appendChild(textSpan);
         container.appendChild(div);
     });
 }
@@ -168,10 +214,10 @@ function toggleTask(index) {
 
 function addTask() {
     const input = document.getElementById('new-task');
-    if (!input.value) return;
+    if (!input.value.trim()) return;
 
     const list = JSON.parse(localStorage.getItem('neon_checklist')) || defaultTasks;
-    list.push({ text: input.value, done: false });
+    list.push({ text: input.value.trim(), done: false });
     localStorage.setItem('neon_checklist', JSON.stringify(list));
     input.value = '';
     loadChecklist();
@@ -195,35 +241,222 @@ function openDoc(docName) {
             return response.text();
         })
         .then(text => {
-            // Simple Markdown Parsing to HTML for better readability
-            let htmlText = text
-                .replace(/^# (.*$)/gim, '<h1 style="color:var(--neon-blue)">$1</h1>')
-                .replace(/^## (.*$)/gim, '<h2 style="color:var(--neon-purple)">$1</h2>')
-                .replace(/^### (.*$)/gim, '<h3 style="color:var(--neon-pink)">$1</h3>')
-                .replace(/\*\*(.*)\*\*/gim, '<b>$1</b>')
-                .replace(/\*(.*)\*/gim, '<i>$1</i>')
-                .replace(/\n/g, '<br />'); // CORRECTED: Removed invalid 'b' flag
+            // Enhanced Markdown Parsing to HTML for better readability
+            let htmlText = text;
+            
+            // Convert headers
+            htmlText = htmlText.replace(/^# (.*$)/gm, '<h1 class="doc-h1">$1</h1>');
+            htmlText = htmlText.replace(/^## (.*$)/gm, '<h2 class="doc-h2">$1</h2>');
+            htmlText = htmlText.replace(/^### (.*$)/gm, '<h3 class="doc-h3">$1</h3>');
+            
+            // Convert bold and italic
+            htmlText = htmlText.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+            htmlText = htmlText.replace(/\*(.*?)\*/g, '<em>$1</em>');
+            
+            // Convert links
+            htmlText = htmlText.replace(/\[(.+?)\]\((.+?)\)/g, '<a href="$2" target="_blank" class="doc-link">$1</a>');
+            
+            // Convert lists
+            htmlText = htmlText.replace(/^\* (.+)$/gm, '<li class="doc-list-item">$1</li>');
+            htmlText = htmlText.replace(/(<li class="doc-list-item">.*<\/li>)/gs, '<ul class="doc-list">$1</ul>');
+            
+            // Convert paragraphs (separate lines)
+            htmlText = htmlText.replace(/\n\n/g, '</p><p class="doc-paragraph">');
+            htmlText = htmlText.replace(/\n/g, '<br>');
+            
+            // Wrap in paragraph tags
+            htmlText = `<p class="doc-paragraph">${htmlText}</p>`;
+            
+            // Clean up extra list wrappers
+            htmlText = htmlText.replace(/<\/ul><ul class="doc-list">/g, '');
+            htmlText = htmlText.replace(/<ul class="doc-list"><\/ul>/g, '');
 
             document.getElementById('doc-content').innerHTML = htmlText;
-            document.getElementById('doc-viewer').style.display = 'block';
+            
+            // Show modal
+            const modal = document.getElementById('doc-viewer');
+            modal.style.display = 'block';
+            
+            // Add close functionality via click outside
+            modal.onclick = function(event) {
+                if (event.target === modal) {
+                    modal.style.display = 'none';
+                }
+            };
 
             // Adjust viewer direction
             if (currentLang === 'ar') {
-                document.getElementById('doc-content').style.direction = 'rtl';
-                document.getElementById('doc-content').style.textAlign = 'right';
+                document.getElementById('doc-content').setAttribute('dir', 'rtl');
             } else {
-                document.getElementById('doc-content').style.direction = 'ltr';
-                document.getElementById('doc-content').style.textAlign = 'left';
+                document.getElementById('doc-content').setAttribute('dir', 'ltr');
+            }
+            
+            // Update modal title
+            const modalTitle = document.querySelector('.modal-header h2');
+            if (modalTitle) {
+                modalTitle.textContent = translations[currentLang].document_viewer;
             }
         })
         .catch(err => {
             document.getElementById('doc-content').innerHTML = `
-                <h2 style="color: red">ERROR LOADING DOCUMENT</h2>
-                <p>Could not fetch from: ${rawUrl}</p>
-                <p>Ensure the repository is PUBLIC or the path is correct.</p>
-                <br>
-                <button class="action-btn" onclick="window.open('${rawUrl.replace('raw.githubusercontent.com', 'github.com').replace('/main/', '/blob/main/')}')">OPEN ON GITHUB</button>
+                <div class="doc-error">
+                    <h2 class="error-title">ERROR LOADING DOCUMENT</h2>
+                    <p class="error-message">Could not fetch from: ${rawUrl}</p>
+                    <p class="error-description">Ensure the repository is PUBLIC or the path is correct.</p>
+                    <div class="error-actions">
+                        <button class="action-btn" onclick="window.open('${rawUrl.replace('raw.githubusercontent.com', 'github.com').replace('/main/', '/blob/main/')}')">OPEN ON GITHUB</button>
+                        <button class="action-btn" onclick="document.getElementById('doc-viewer').style.display='none'">CLOSE</button>
+                    </div>
+                </div>
             `;
-            document.getElementById('doc-viewer').style.display = 'block';
+            
+            const modal = document.getElementById('doc-viewer');
+            modal.style.display = 'block';
+            
+            // Add close functionality via click outside
+            modal.onclick = function(event) {
+                if (event.target === modal) {
+                    modal.style.display = 'none';
+                }
+            };
         });
 }
+
+// Function to open a document in a specific language
+function openDocWithLang(docName, lang) {
+    // Store the current language to restore after viewing
+    const originalLang = currentLang;
+    
+    // Temporarily switch to the requested language
+    currentLang = lang;
+    
+    // Update the language attribute on the document element
+    if (lang === 'ar') {
+        document.documentElement.lang = 'ar';
+        document.body.classList.add('rtl');
+    } else {
+        document.documentElement.lang = 'en';
+        document.body.classList.remove('rtl');
+    }
+    
+    // Open the document with the temporary language setting
+    let path = `/${docName}.md`;
+    
+    if (lang === 'ar') {
+        path = `/Arabic/${docName}.md`;
+    }
+    
+    // Use Raw GitHub User Content to bypass relative path issues on deployed site
+    const rawUrl = `https://raw.githubusercontent.com/${REPO_USER}/${REPO_NAME}/${BRANCH}${path}`;
+    
+    fetch(rawUrl)
+        .then(response => {
+            if (!response.ok) throw new Error("Could not fetch file from GitHub.");
+            return response.text();
+        })
+        .then(text => {
+            // Enhanced Markdown Parsing to HTML for better readability
+            let htmlText = text;
+            
+            // Convert headers
+            htmlText = htmlText.replace(/^# (.*$)/gm, '<h1 class="doc-h1">$1</h1>');
+            htmlText = htmlText.replace(/^## (.*$)/gm, '<h2 class="doc-h2">$1</h2>');
+            htmlText = htmlText.replace(/^### (.*$)/gm, '<h3 class="doc-h3">$1</h3>');
+            
+            // Convert bold and italic
+            htmlText = htmlText.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+            htmlText = htmlText.replace(/\*(.*?)\*/g, '<em>$1</em>');
+            
+            // Convert links
+            htmlText = htmlText.replace(/\[(.+?)\]\((.+?)\)/g, '<a href="$2" target="_blank" class="doc-link">$1</a>');
+            
+            // Convert lists
+            htmlText = htmlText.replace(/^\* (.+)$/gm, '<li class="doc-list-item">$1</li>');
+            htmlText = htmlText.replace(/(<li class="doc-list-item">.*<\/li>)/gs, '<ul class="doc-list">$1</ul>');
+            
+            // Convert paragraphs (separate lines)
+            htmlText = htmlText.replace(/\n\n/g, '</p><p class="doc-paragraph">');
+            htmlText = htmlText.replace(/\n/g, '<br>');
+            
+            // Wrap in paragraph tags
+            htmlText = `<p class="doc-paragraph">${htmlText}</p>`;
+            
+            // Clean up extra list wrappers
+            htmlText = htmlText.replace(/<\/ul><ul class="doc-list">/g, '');
+            htmlText = htmlText.replace(/<ul class="doc-list"><\/ul>/g, '');
+
+            document.getElementById('doc-content').innerHTML = htmlText;
+            
+            // Show modal
+            const modal = document.getElementById('doc-viewer');
+            modal.style.display = 'block';
+            
+            // Add close functionality via click outside
+            modal.onclick = function(event) {
+                if (event.target === modal) {
+                    modal.style.display = 'none';
+                    // Restore original language when closing
+                    currentLang = originalLang;
+                    if (originalLang === 'ar') {
+                        document.documentElement.lang = 'ar';
+                        document.body.classList.add('rtl');
+                    } else {
+                        document.documentElement.lang = 'en';
+                        document.body.classList.remove('rtl');
+                    }
+                }
+            };
+
+            // Adjust viewer direction
+            if (lang === 'ar') {
+                document.getElementById('doc-content').setAttribute('dir', 'rtl');
+            } else {
+                document.getElementById('doc-content').setAttribute('dir', 'ltr');
+            }
+            
+            // Update modal title
+            const modalTitle = document.querySelector('.modal-header h2');
+            if (modalTitle) {
+                modalTitle.textContent = translations[lang].document_viewer;
+            }
+        })
+        .catch(err => {
+            document.getElementById('doc-content').innerHTML = `
+                <div class="doc-error">
+                    <h2 class="error-title">ERROR LOADING DOCUMENT</h2>
+                    <p class="error-message">Could not fetch from: ${rawUrl}</p>
+                    <p class="error-description">Ensure the repository is PUBLIC or the path is correct.</p>
+                    <div class="error-actions">
+                        <button class="action-btn" onclick="window.open('${rawUrl.replace('raw.githubusercontent.com', 'github.com').replace('/main/', '/blob/main/')}')">OPEN ON GITHUB</button>
+                        <button class="action-btn" onclick="document.getElementById('doc-viewer').style.display='none'">CLOSE</button>
+                    </div>
+                </div>
+            `;
+            
+            const modal = document.getElementById('doc-viewer');
+            modal.style.display = 'block';
+            
+            // Add close functionality via click outside
+            modal.onclick = function(event) {
+                if (event.target === modal) {
+                    modal.style.display = 'none';
+                    // Restore original language when closing
+                    currentLang = originalLang;
+                    if (originalLang === 'ar') {
+                        document.documentElement.lang = 'ar';
+                        document.body.classList.add('rtl');
+                    } else {
+                        document.documentElement.lang = 'en';
+                        document.body.classList.remove('rtl');
+                    }
+                }
+            };
+        });
+}
+
+// Close modal when pressing Escape key
+document.addEventListener('keydown', function(event) {
+    if (event.key === 'Escape') {
+        document.getElementById('doc-viewer').style.display = 'none';
+    }
+});
