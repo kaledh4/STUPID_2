@@ -7,6 +7,8 @@
     "start": "npx serve docs",
     "dev": "npx live-server docs --port=8080",
     "test": "echo \"Error: no test specified\" && exit 1",
+    "validate-html": "w3c-html-validator docs",
+    "check-links": "linkinator docs --recurse --skip \"github.com,raw.githubusercontent.com\"",
     "build": "echo \"Build completed\"",
     "lint": "eslint docs/js/*.js",
     "format": "prettier --write docs/**/*.{html,css,js}"
@@ -22,9 +24,11 @@
   "license": "MIT",
   "devDependencies": {
     "eslint": "^8.0.0",
+    "w3c-html-validator": "^2.2.0",
+    "linkinator": "^7.5.3",
+    "live-server": "^1.2.0",
     "prettier": "^2.0.0",
-    "serve": "^14.0.0",
-    "live-server": "^1.2.0"
+    "serve": "^14.0.0"
   },
   "repository": {
     "type": "git",
@@ -33,5 +37,8 @@
   "bugs": {
     "url": "https://github.com/kaledh4/STUPID_2/issues"
   },
-  "homepage": "https://github.com/kaledh4/STUPID_2#readme"
+  "homepage": "https://github.com/kaledh4/STUPID_2#readme",
+  "dependencies": {
+    "w3c-html-validator": "^2.2.0"
+  }
 }
